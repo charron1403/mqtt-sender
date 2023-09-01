@@ -1,16 +1,26 @@
-# This is a sample Python script.
+import time
 
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import RPi.GPIO as GPIO
+import dht11
+import paho.mqtt.client as mqtt
 
+def on_connect(client, userdata, flags, rc):
+    client.subscribe("XX/temp/sensor")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.cleanup()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    client = mqtt.Client()
+    client.on_connect = on_connect
+
+    client.connect("10.4.1.42", 1883, 60)
+
+    instance = dht11.DHT11(pin=17)
+
+    while 1:
+        result = instance.read()
+
+        if result.is_valid():
+            client.publish("Temp: %-3.1f C" % result.temperature)
