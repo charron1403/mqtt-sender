@@ -1,11 +1,6 @@
-import time
-
 import RPi.GPIO as GPIO
 import dht11
 import paho.mqtt.client as mqtt
-
-def on_connect(client, userdata, flags, rc):
-    client.subscribe("XX/temp/sensor")
 
 if __name__ == '__main__':
     GPIO.setwarnings(False)
@@ -13,7 +8,6 @@ if __name__ == '__main__':
     GPIO.cleanup()
 
     client = mqtt.Client()
-    client.on_connect = on_connect
 
     client.connect("10.4.1.42", 1883, 60)
 
@@ -23,4 +17,4 @@ if __name__ == '__main__':
         result = instance.read()
 
         if result.is_valid():
-            client.publish("Temp: %-3.1f C" % result.temperature)
+            client.publish("XX/temp/sensor", "Temp: %-3.1f" % result.temperature)
